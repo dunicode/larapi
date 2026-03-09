@@ -27,7 +27,8 @@ class AuthController extends Controller
     public function login(Request $request){
         $loginUserData = $request->validate([
             'email'=>'required|string|email',
-            'password'=>'required|min:8'
+            'password'=>'required|min:8',
+            'device_name' => 'required',
         ]);
         $user = User::where('email',$loginUserData['email'])->first();
         if(!$user || !Hash::check($loginUserData['password'],$user->password)){
@@ -45,11 +46,11 @@ class AuthController extends Controller
         return $request->user();
     }
 
-    public function logout(){
-        auth()->user()->tokens()->delete();
+    public function logout(Request $request){
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            "message"=>"logged out"
+            "message" => "Session closed"
         ]);
     }
 }
